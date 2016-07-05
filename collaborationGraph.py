@@ -9,7 +9,6 @@ from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 import numpy as np
 
-
 def importData(fileName):
     # The CSV file contains the lastname, firstname, [ list of lastnames of co-authors]
     data = []
@@ -46,22 +45,15 @@ def cleanupData(data):
 
     return authors, collaborators, collaboratorsGraph
 
-def generatePlot(graph):
-    scale=0.01
-    circles = []
-    for node in graph:
-        size = len(node)
-        circle = plt.Circle(( random.random()  ,  random.random()  ), size*scale, color='r')
-        circles.append(circle)
-    fig = plt.gcf()
-    for circle in circles:
-        fig.gca().add_artist(circle)
-    plt.axis('off')
-    fig.savefig('plotcircles.png')
-    plt.show()
-
 def draw_graph(G, graph_layout='spring', node_text_size=12, text_font='Merriweather',node_size=1600, node_color='blue', node_alpha=0.4,
                edge_color='blue', edge_alpha=0.4, edge_tickness=1, edge_text_pos=0.3,):
+    print(G)
+    zeroDegreeNodes = [];
+    for node in G:
+        if G.degree(node)==0:
+            zeroDegreeNodes.append(node)
+    G.remove_nodes_from(zeroDegreeNodes)
+
     # these are different layouts for the network you may try
     # shell seems to work best
     if graph_layout == 'spring':
@@ -73,6 +65,8 @@ def draw_graph(G, graph_layout='spring', node_text_size=12, text_font='Merriweat
     else:
         graph_pos = nx.shell_layout(G)
 
+    print (graph_pos)
+
     # draw graph
     scale=400
     nodeSize = []
@@ -83,12 +77,16 @@ def draw_graph(G, graph_layout='spring', node_text_size=12, text_font='Merriweat
         #if(d>8):
         #    d=8
         nodeSize.append(scale*d)
-
     nx.draw_networkx_edges(G, graph_pos, width=edge_tickness, alpha=edge_alpha, edge_color=edge_color)
     nx.draw_networkx_nodes(G, graph_pos, node_size=nodeSize,alpha=node_alpha, node_color=range(len(G.nodes())), cmap=plt.cm.CMRmap)
     nx.draw_networkx_labels(G, graph_pos, font_size=node_text_size, font_family=text_font)
 
     # show graph
+    fig = plt.gcf()
+    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    ax.set_axis_off()
+    fig.add_axes(ax)
+    fig.savefig('collaborations.png')
     plt.show()
 
 def createNxGraph(authors, collaborators, graph):
@@ -103,11 +101,11 @@ def main():
     fileName = r"collaborationData.csv"
     data = importData(fileName)
     authors, collaborators, graph = cleanupData(data);
-    print(authors)
-    print(collaborators)
-    print(graph)
+    #print(authors)
+    #print(collaborators)
+    #print(graph)
     nxGraph = createNxGraph(authors, collaborators, graph)
-    #generatePlot(graph)
     draw_graph(nxGraph)
 
-if  __name__ =='__main__':main()
+if  __name__ =='__main__':
+    main()
