@@ -106,6 +106,6 @@ def main():
     #print(graph)
     nxGraph = createNxGraph(authors, collaborators, graph)
     draw_graph(nxGraph)
-
+    print(authors)
 if  __name__ =='__main__':
     main()
